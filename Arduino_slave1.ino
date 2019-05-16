@@ -8,6 +8,7 @@
  *
  *      Hanaro, SNU
  *      This program will be uploaded to slave arduino
+ *      Pinout: connect RST pin to RPi's GPIO No.??
  *      
  ***************************************************************************/
 
@@ -91,7 +92,9 @@ char SIGNAL_TURNON = 'a';
 
 void setup() {
   
-    /* Serial communication for debug/communication begin */
+    /* Serial communication for debug/communication begin 
+    When RPi resets the arduino, this block indicates that the arduino has resetted
+    by blinking #13 LED three times.*/
     pinMode(13, OUTPUT);
     for (int i=1;i<3;i++){
       digitalWrite(13, HIGH);
@@ -100,6 +103,9 @@ void setup() {
       delay(0.5);
     }
     Serial.begin(115200);
+    /* After blink, wait untill receiving message from the RPi
+     *  When recieved the message '1', LED blink indicates this. 
+     */
     while(1){
       if(Serial.available()){
         SIGNAL_TURNON = Serial.read();
@@ -125,7 +131,7 @@ void setup() {
     /* Configure MPU9250 sensor */
     if (fabo_9axis.begin()) {
         fabo_9axis.configMPU9250(MPU9250_GFS_1000, MPU9250_AFS_16G);
-        Serial.println("[STATUS] CONF: FaBo 9Axis I2C Brick");
+        Serial.println(cd "[STATUS] CONF: FaBo 9Axis I2C Brick");
         // xBee.print("[STATUS] CONF: FaBo 9Axis I2C Brick\r\n");
     } else {
         Serial.println("[ ERROR] NO FaBo 9Axis I2C Brick");
@@ -189,7 +195,7 @@ void setup() {
 
     calc2 /= INIT_ALT_COUNT;
 //    a_threshold = calc2 + A_THRESHOLD - 1;
-    Serial.write('1');  // Send cal. finished signal to RPi.
+    Serial.write('1');  // Send cal. finished signal to RPi.ls
     /* Main loop
      * To optimize performance in the Arduino chip, main loop does not reside
      * on the loop() function. It is better to have a loop in the setup
