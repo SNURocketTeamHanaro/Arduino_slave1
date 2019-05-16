@@ -8,7 +8,7 @@
  *
  *      Hanaro, SNU
  *      This program will be uploaded to slave arduino
- *      Pinout: connect RST pin to RPi's GPIO No.??
+ *      Pinout: connect RST pin to RPi's GPIO No.37
  *      
  ***************************************************************************/
 
@@ -131,10 +131,11 @@ void setup() {
     /* Configure MPU9250 sensor */
     if (fabo_9axis.begin()) {
         fabo_9axis.configMPU9250(MPU9250_GFS_1000, MPU9250_AFS_16G);
-        Serial.println(cd "[STATUS] CONF: FaBo 9Axis I2C Brick");
+        // Serial.println(cd "[STATUS] CONF: FaBo 9Axis I2C Brick");
         // xBee.print("[STATUS] CONF: FaBo 9Axis I2C Brick\r\n");
     } else {
-        Serial.println("[ ERROR] NO FaBo 9Axis I2C Brick");
+        // Serial.println("[ ERROR] NO FaBo 9Axis I2C Brick");
+        Serial.write('b');
         // xBee.print("[ ERROR] NO FaBo 9Axis I2C Brick\r\n");
         while (1)
             ; // Die here
@@ -145,7 +146,8 @@ void setup() {
         Serial.println("[STATUS] CONF: BMP 280");
         // xBee.print("[STATUS] Configured: BMP 280.\r\n");
     } else {
-        Serial.println("[ ERROR] NO BMP280 (Check wiring!)");
+        // Serial.println("[ ERROR] NO BMP280 (Check wiring!)");
+        Serial.write('c');
         // xBee.print("[ ERROR] Device error: BMP280 sensor. (Check wiring!)\r\n");
         while (1)
             ; // Die here
@@ -200,6 +202,7 @@ void setup() {
      * To optimize performance in the Arduino chip, main loop does not reside
      * on the loop() function. It is better to have a loop in the setup
      * function in order to avoid nasty problems involving function calls. */
+      float pres_altitude = 0;
     while (1) {
         curr_time = millis();
         if (curr_time - prev_time >= PERIOD_DATA_RETRIEVAL) {
@@ -223,9 +226,7 @@ void setup() {
             //press = (uint32_t)analogRead(A0);
 
             /* Temporal data in stack (optimization) */
-            float pres_altitude = 0;
-            pres_altitude = bmp.readAltitude(); 
-            pres_altitude = pres_altitude-ini_altitude;
+            pres_altitude = bmp.readAltitude() - ini_altitude; 
             /* Code for state */
             // byte state = (byte)((rocket_on << 2) + (para_drogue << 1) + para_main);
 
@@ -256,12 +257,13 @@ void setup() {
                 sizeof(data[datanum].data_packet_bytestring));
             Serial.write('#'); // End character
             Serial.write('#'); // End character
- 
+            delay(30);
  
              /* Do this for next data slot in the free cache */
             ++datanum;
         }
         datanum = 0;
+        
     }
 }
 
