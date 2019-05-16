@@ -7,6 +7,8 @@
  *   Maximum unstable thruput : sample / 5  ms
  *
  *      Hanaro, SNU
+ *      This program will be uploaded to slave arduino
+ *      
  ***************************************************************************/
 
 #include <stdio.h>
